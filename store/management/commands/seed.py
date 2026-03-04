@@ -2,7 +2,9 @@ from django.core.management.base import BaseCommand
 from django.core.files import File
 from django.conf import settings
 import os
+from store.models import Product
 
+Product.objects.all().delete()
 
 class Command(BaseCommand):
     help = "Seed store safely with all products"
