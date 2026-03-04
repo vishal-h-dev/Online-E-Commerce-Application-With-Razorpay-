@@ -1,9 +1,8 @@
-Django
-psycopg2-binary
-pillow
-python-dotenv
-social-auth-app-django
-razorpay
-reportlab
-gunicorn
-nginx
+Django==5.0.6
+psycopg2-binary==2.9.9
+pillow==10.4.0
+python-dotenv==1.0.1
+social-auth-app-django==5.4.0
+razorpay==1.4.2
+reportlab==4.2.2
+gunicorn==22.0.0
