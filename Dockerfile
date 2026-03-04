@@ -7,9 +7,10 @@ ENV PYTHONUNBUFFERED=1
 
 COPY requirements.txt .
 
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
-RUN pip install setuptools
+# Install setuptools BEFORE anything that might need pkg_resources (razorpay does)
+RUN pip install --upgrade pip setuptools wheel \
+ && pip install -r requirements.txt
+
 COPY . .
 
 EXPOSE 8000
