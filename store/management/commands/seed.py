@@ -4,15 +4,15 @@ from django.conf import settings
 import os
 from store.models import Product
 
-Product.objects.all().delete()
+
 
 class Command(BaseCommand):
     help = "Seed store safely with all products"
 
     def handle(self, *args, **kwargs):
-
+        
         from store.models import Category, Brand, Product
-
+        Product.objects.all().delete()
         media_path = os.path.join(settings.MEDIA_ROOT, "products")
 
         # -------- Categories --------
