@@ -5,3 +5,5 @@ python-dotenv
 social-auth-app-django
 razorpay
 reportlab
+gunicorn
+nginx
