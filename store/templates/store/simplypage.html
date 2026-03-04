@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Agdasima:wght@400;700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Source+Code+Pro&family=Space+Grotesk:wght@300..700&display=swap"
+        rel="stylesheet"
+    />
+
+    <title>Stock Portfolio Tracker • Django + yfinance + Plotly</title>
+
+    <style>
+        /* Global */
+        * {
+            font-family: "Space Grotesk", sans-serif;
+            box-sizing: border-box;
+        }
+        body {
+            background: #121212;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            line-height: 1.8;
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: #000;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 15px;
+        }
+        .contact-btn {
+            background: #007bff;
+            padding: 8px 12px;
+            border-radius: 5px;
+        }
+
+        /* Layout */
+        .container {
+            display: flex;
+            padding: 80px 30px 30px; /* leave space for header */
+        }
+        .content {
+            width: 70%;
+            padding-right: 300px; /* sidebar space */
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            right: 0;
+            top: 80px;
+            width: 250px;
+            height: calc(100vh - 80px);
+            background: #1c1c1c;
+            padding: 20px;
+            border-left: 2px solid #333;
+            overflow-y: auto;
+        }
+        .sidebar h3 {
+            color: #ddd;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+        .sidebar ul li {
+            margin: 10px 0;
+        }
+        .sidebar ul li a {
+            color: #bbb;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .sidebar ul li a:hover {
+            color: #007bff;
+        }
+
+        /* Sections */
+        section {
+            padding: 50px 0;
+            border-bottom: 1px solid #333;
+        }
+        h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+        p {
+            font-size: 16px;
+            color: #bbb;
+        }
+
+        /* Images */
+        img {
+            width: 100%;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        /* Slider (for wishlist) */
+        .slider-container {
+            width: 100%;
+            max-width: 800px;
+            overflow: hidden;
+            position: relative;
+            margin: auto;
+            border-radius: 10px;
+        }
+        .slides {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+        }
+        .slide {
+            min-width: 100%;
+            transition: 0.5s;
+        }
+        .slide img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+        .prev,
+        .next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 24px;
+            border-radius: 50%;
+        }
+        .prev {
+            left: 10px;
+        }
+        .next {
+            right: 10px;
+        }
+        .prev:hover,
+        .next:hover {
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        /* Footer */
+        footer {
+            background: #f8f8f8;
+            padding: 15px;
+            text-align: center;
+            font-size: 14px;
+            border-top: 1px solid #ddd;
+            color: #000;
+        }
+        footer ul {
+            list-style: none;
+            padding: 0;
+        }
+        footer ul li {
+            display: inline-block;
+            margin: 0 10px;
+        }
+        footer a {
+            color: #000;
+            text-decoration: none;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">VISHAL HEGDE</div>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="projects.html">Projects</a>
+            <a href="index.html#contact" class="contact-btn">Contact ↗</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <h3>Sections</h3>
+            <ul>
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#login">Login</a></li>
+                <li><a href="#dashboard">Dashboard</a></li>
+                <li><a href="#stock">Stock Data</a></li>
+                <li><a href="#portfolio">Portfolio</a></li>
+                <li><a href="#news">Financial News</a></li>
+                <li><a href="#wishlist">Wishlists</a></li>
+            </ul>
+        </aside>
+
+        <!-- Content -->
+        <main class="content">
+            <!-- Overview -->
+            <section id="overview">
+                <h2>Overview</h2>
+                <p>
+                    This <strong>Stock Portfolio Tracker</strong> is a Django‑powered web app that lets investors research equities, monitor live holdings, curate multiple wishlists, and stay informed with market news. Data is fetched via <em>yfinance</em>, plotted with Plotly, and stored in PostgreSQL for persistency. Responsive pages are built with Bootstrap and authenticated through Django’s default auth system.
+                </p>
+            </section>
+
+            <!-- Login -->
+            <section id="login">
+                <h2>Login</h2>
+                <img src="static/st_login.png" alt="Django auth login" />
+                <p>
+                    A simple, secure login/register flow leverages Django’s built‑in authentication—complete with CSRF tokens and password hashing.
+                </p>
+            </section>
+
+            <!-- Dashboard -->
+            <section id="dashboard">
+                <h2>Dashboard</h2>
+                <img src="static/st_home.png" alt="Dashboard overview" />
+                <p>
+                    The dashboard aggregates portfolio totals, unrealised P&L, a global search bar for tickers, and curated news cards from the News API. A side menu routes to news, wishlists, portfolio, and profile.
+                </p>
+            </section>
+
+            <!-- Stock Data -->
+            <section id="stock">
+                <h2>Individual Stock Data</h2>
+                <img src="static/st_stockdata.png" alt="Individual stock page" />
+                <p>
+                    Each stock page renders company overview, key metrics, interactive price charts (1D–MAX) powered by Plotly, and tabs for income statement, balance sheet, and cash‑flow charts—plus the latest ticker‑specific headlines.
+                </p>
+            </section>
+
+            <!-- Portfolio -->
+            <section id="portfolio">
+                <h2>Manage Portfolio</h2>
+                <img src="static/st_portfolio.png" alt="Portfolio management" />
+                <p>
+                    Users record buys with quantity and price (auto‑converted to INR). Current values auto‑update via live market data, displaying gains and allocation breakdowns—all backed by PostgreSQL.
+                </p>
+            </section>
+
+            <!-- News -->
+            <section id="news">
+                <h2>Financial News</h2>
+                <img src="static/st_news.png" alt="Financial news page" />
+                <p>
+                    The news hub splits headlines into Top Stories, Local Market, and Global Market. Each card features source, thumbnail, and a quick‑read snippet fetched from the News API.
+                </p>
+            </section>
+
+            <!-- Wishlists (carousel with two images) -->
+            <section id="wishlist">
+                <h2>Wishlists</h2>
+                <div class="slider-container" id="sliderWishlist">
+                    <div class="slides">
+                        <div class="slide"><img src="static/st_wishlistlists.png" alt="Wishlist collections" /></div>
+                        <div class="slide"><img src="static/st_wishlist.png" alt="Stocks inside wishlist" /></div>
+                    </div>
+                    <button class="prev" onclick="changeSlide(-1, 'sliderWishlist')">&#10094;</button>
+                    <button class="next" onclick="changeSlide(1, 'sliderWishlist')">&#10095;</button>
+                </div>
+                <p>
+                    Investors can create unlimited lists—e.g., <em>Swing Trades</em>, <em>Long‑term Bets</em>, <em>Dividend Picks</em>—and populate them with tickers for later tracking.
+                </p>
+            </section>
+        </main>
+    </div>
+
+
+    <!-- Slider Script -->
+    <script>
+        function changeSlide(direction, sliderId) {
+            const slider = document.getElementById(sliderId);
+            const slides = slider.querySelector('.slides');
+            let index = parseInt(slides.dataset.index || '0');
+            const total = slides.children.length;
+            index = (index + direction + total) % total;
+            slides.dataset.index = index;
+            slides.style.transform = `translateX(-${index * 100}%)`;
+        }
+    </script>
+</body>
+</html>

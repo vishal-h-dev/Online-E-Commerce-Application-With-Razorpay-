@@ -1,33 +1,45 @@
 {% extends "base.html" %}
 {% block title %}Login | EComStore{% endblock %}
 {% block content %}
-    <div class="github-card" style="margin-top: 50px;">
-        <form method="post" style="max-width:340px; margin:0 auto;">
-            {% csrf_token %}
 
-            <label class="github-label" for="{{ form.username.id_for_label }}" style="text-align:left;">Username</label>
-            {{ form.username }}
-            {% if form.username.errors %}
-                <div class="text-danger small">{{ form.username.errors|striptags }}</div>
-            {% endif %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 90vh;">
+  <div class="card shadow p-4" style="width: 100%; max-width: 400px; background-color: #161b22; border-radius: 10px; color: #f0f6fc;">
 
-            <label class="github-label" for="{{ form.password.id_for_label }}" style="text-align:left;">Password</label>
-            {{ form.password }}
-            {% if form.password.errors %}
-                <div class="text-danger small">{{ form.password.errors|striptags }}</div>
-            {% endif %}
+    <h3 class="text-center mb-4" style="color: #58a6ff;">Login to Your Account</h3>
 
-            <button type="submit" class="github-btn"
-                    style="max-width:170px; margin: 0.7rem auto 0 auto; display:block;">Login
-            </button>
-        </form>
-        <div class="github-footer-text">
-            Don't have an account?
-            <a href="{% url 'signup' %}">Sign Up</a>
-        </div>
-        <a class="btn btn-outline-primary w-100 mb-2"
-           href="{% url 'social:begin' 'google-oauth2' %}">
-            <i class="fab fa-google"></i> Login with Google
-        </a>
+    <form method="post" novalidate>
+      {% csrf_token %}
+
+      <div class="mb-3">
+        <label for="id_username" class="form-label">Username</label>
+        <input type="text" name="username" class="form-control bg-dark text-white border-secondary" id="id_username" required>
+        {% if form.username.errors %}
+          <div class="text-danger small mt-1">{{ form.username.errors|striptags }}</div>
+        {% endif %}
+      </div>
+
+      <div class="mb-3">
+        <label for="id_password" class="form-label">Password</label>
+        <input type="password" name="password" class="form-control bg-dark text-white border-secondary" id="id_password" required>
+        {% if form.password.errors %}
+          <div class="text-danger small mt-1">{{ form.password.errors|striptags }}</div>
+        {% endif %}
+      </div>
+
+      <div class="d-grid mb-3">
+        <button type="submit" class="btn btn-success fw-bold">Login</button>
+      </div>
+    </form>
+
+    <div class="text-center mb-3">
+      <small>Don't have an account? <a href="{% url 'signup' %}" class="text-decoration-none text-primary">Sign Up</a></small>
     </div>
+
+    <a href="{% url 'social:begin' 'google-oauth2' %}" class="btn btn-outline-primary d-flex align-items-center justify-content-center">
+      <i class="fab fa-google me-2"></i> Login with Google
+    </a>
+
+  </div>
+</div>
+
 {% endblock %}

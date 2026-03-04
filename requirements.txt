@@ -1,0 +1,7 @@
+Django
+psycopg2-binary
+pillow
+python-dotenv
+social-auth-app-django
+razorpay
+reportlab

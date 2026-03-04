@@ -1,30 +1,25 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login, authenticate, logout
+import json
+
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib import messages
-from django.db.models import Q, F, Sum
-from django.conf import settings
-from django.utils import timezone
-import json
-from django.http import JsonResponse, HttpResponseBadRequest
-from django.views.decorators.csrf import csrf_exempt
-from urllib3 import request
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from django.conf import settings
+from django.db.models import F, Q, Sum
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse, HttpResponseBadRequest
-import json
 
-from .models import (
-    CustomerProfile, Cart, CartItem, Address, PhoneNumber,
-    Order, OrderItem, Coupon
-)
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.units import mm
+from reportlab.pdfgen import canvas
+
 from .forms import CouponApplyForm
-
+from .models import (
+    Address, Cart, CartItem, Coupon, CustomerProfile,
+    Order, OrderItem, PhoneNumber
+)
 import razorpay
 
 from .forms import (
@@ -48,7 +43,7 @@ def signup_view(request):
             user = form.save(commit=False)
             user.email = form.cleaned_data['email']
             user.save()
-            profile = CustomerProfile.objects.create(
+            profile = CustomerProfile.objects.get_or_create(
                 user=user,
                 email=user.email,
                 first_name='',
@@ -576,3 +571,109 @@ def product_review(request, product_id):
         'form': form,
         'reviews': reviews,
     })
+
+
+
+@login_required
+def download_invoice(request, order_id):
+
+    order = get_object_or_404(
+        Order,
+        id=order_id,
+        customer=request.user.customerprofile
+    )
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="invoice_{order.id}.pdf"'
+
+    p = canvas.Canvas(response, pagesize=A4)
+
+    width, height = A4
+    y = height - 40
+
+    # Store Header
+    p.setFont("Helvetica-Bold", 18)
+    p.drawString(40, y, "EComStore Invoice")
+
+    y -= 30
+
+    p.setFont("Helvetica", 11)
+    p.drawString(40, y, f"Order ID: {order.id}")
+    y -= 18
+
+    p.drawString(40, y, f"Order Date: {order.date_of_purchase.strftime('%Y-%m-%d')}")
+    y -= 18
+
+    p.drawString(40, y, f"Customer: {order.customer.first_name} {order.customer.last_name}")
+    y -= 18
+
+    p.drawString(40, y, f"Payment Status: {order.payment_status}")
+    y -= 30
+
+    # Address
+    p.setFont("Helvetica-Bold", 12)
+    p.drawString(40, y, "Delivery Address")
+    y -= 18
+
+    p.setFont("Helvetica", 11)
+
+    address = order.address
+    if address:
+        p.drawString(40, y, address.address_line)
+        y -= 15
+        p.drawString(40, y, f"{address.city}, {address.state}")
+        y -= 15
+        p.drawString(40, y, f"{address.postal_code}, {address.country}")
+        y -= 25
+
+    # Table Header
+    p.setFont("Helvetica-Bold", 12)
+
+    p.drawString(40, y, "Product")
+    p.drawString(300, y, "Qty")
+    p.drawString(350, y, "Price")
+    p.drawString(430, y, "Subtotal")
+
+    y -= 10
+    p.line(40, y, 520, y)
+    y -= 20
+
+    p.setFont("Helvetica", 11)
+
+    total = 0
+
+    for item in order.items.all():
+
+        subtotal = item.quantity * item.price
+        total += subtotal
+
+        product_name = item.product.name if item.product else "Deleted product"
+
+        p.drawString(40, y, product_name[:40])
+        p.drawString(305, y, str(item.quantity))
+        p.drawString(350, y, f"₹{item.price}")
+        p.drawString(430, y, f"₹{subtotal}")
+
+        y -= 18
+
+        if y < 80:
+            p.showPage()
+            y = height - 40
+
+    y -= 10
+    p.line(40, y, 520, y)
+    y -= 20
+
+    p.setFont("Helvetica-Bold", 12)
+    p.drawString(350, y, "Total")
+    p.drawString(430, y, f"₹{total}")
+
+    y -= 40
+
+    p.setFont("Helvetica", 10)
+    p.drawString(40, y, "Thank you for shopping with EComStore!")
+
+    p.showPage()
+    p.save()
+
+    return response

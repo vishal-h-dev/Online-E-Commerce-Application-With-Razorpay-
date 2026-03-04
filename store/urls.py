@@ -36,7 +36,7 @@ urlpatterns = [
 path('category/<slug:slug>/', views.category_products, name='category_products'),
     path('product/<int:product_id>/', views.product_detail, name='product_detail'),
     path('search/', views.product_search, name='product_search'),
-
+    path('invoice/<int:order_id>/', views.download_invoice, name='download_invoice'),
 ]
 
 if settings.DEBUG:

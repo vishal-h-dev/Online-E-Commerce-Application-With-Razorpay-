@@ -2,93 +2,91 @@
 {% block title %}Cart | EComStore{% endblock %}
 {% block content %}
 
-    <div class="container" style="max-width:900px;">
-        <h2 class="mb-4" style="color:#58a6ff;">Your Cart</h2>
-        {% if cart_items %}
-            <div class="table-responsive">
-                <table class="table align-middle"
-                       style="background:#161b22; color:#c9d1d9; border-radius:10px; overflow:hidden;">
-                    <thead>
-                    <tr style="border-bottom:1.5px solid #30363d;">
-                        <th scope="col"></th>
-                        <th scope="col" style="min-width:180px;">Product</th>
-                        <th scope="col">Price</th>
-                        <th scope="col" style="min-width:124px;">Quantity</th>
-                        <th scope="col">Total</th>
-                        <th scope="col" class="text-center">Actions</th>
+<div class="container my-5" style="max-width: 960px;">
+    <h2 class="mb-4" style="color: #58a6ff; font-weight: 700;">🛒 Your Cart</h2>
+
+    {% if cart_items %}
+        <div class="table-responsive">
+            <table class="table align-middle rounded" style="background: #161b22; color: #c9d1d9;">
+                <thead style="border-bottom: 2px solid #30363d;">
+                    <tr>
+                        <th></th>
+                        <th style="min-width:200px;">Product</th>
+                        <th>Price</th>
+                        <th style="min-width:140px;">Quantity</th>
+                        <th>Total</th>
+                        <th class="text-center">Actions</th>
                     </tr>
-                    </thead>
-                    <tbody>
+                </thead>
+                <tbody>
                     {% for item in cart_items %}
-                        <tr style="border-bottom:1px solid #222;">
+                        <tr style="border-bottom: 1px solid #222;">
                             <td>
                                 <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}"
-                                     style="width:58px; height:58px; object-fit:cover; border-radius:8px; background:#222;">
+                                     style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
                             </td>
                             <td>
-                                <div style="font-weight:600; color:#f0f6fc;">{{ item.product.name }}</div>
-                                <div style="color:#8b949e; font-size:0.97em;">{{ item.product.category.name }}</div>
+                                <div style="font-weight: 600; color: black;">{{ item.product.name }}</div>
+                                <div style="color: black; font-size: 0.95em;">{{ item.product.category.name }}</div>
+                            </td>
+                            <td style="color: black; font-weight: 600;">
+                                ₹{{ item.product.price }}
                             </td>
                             <td>
-                                <span style="color:#58a6ff; font-weight:600;">₹{{ item.product.price }}</span>
-                            </td>
-                            <td>
-                                <form method="post" action="{% url 'update_cart_quantity' item.id %}"
-                                      class="d-flex align-items-center" style="gap:7px;">
+                                <form method="post" action="{% url 'update_cart_quantity' item.id %}" class="d-flex align-items-center justify-content-start" style="gap: 8px;">
                                     {% csrf_token %}
                                     <button type="submit" name="action" value="decrease"
-                                            class="btn btn-sm btn-outline-secondary px-2"
-                                            style="color:#fff; border-radius:6px; border:1px solid #30363d; background:#21262d;">
+                                            class="btn btn-sm px-2"
+                                            style="color: #fff; background: #21262d; border: 1px solid #30363d; border-radius: 6px;">
                                         <i class="fa fa-minus"></i>
                                     </button>
-                                    <span style="min-width:30px; text-align:center; color:#fff;">{{ item.quantity }}</span>
+                                    <span style="min-width: 30px; text-align: center;">{{ item.quantity }}</span>
                                     <button type="submit" name="action" value="increase"
-                                            class="btn btn-sm btn-outline-secondary px-2"
-                                            style="color:#fff; border-radius:6px; border:1px solid #30363d; background:#21262d;">
+                                            class="btn btn-sm px-2"
+                                            style="color: #fff; background: #21262d; border: 1px solid #30363d; border-radius: 6px;">
                                         <i class="fa fa-plus"></i>
                                     </button>
                                 </form>
                             </td>
                             <td>
-                                <span style="font-weight:600;">₹{{ item.product.price|floatformat:2|add:""|floatformat:2|floatformat }} × {{ item.quantity }} = ₹{{ item.total_price|floatformat:2 }}</span>
+                                <strong>₹{{ item.total_price|floatformat:2 }}</strong>
                             </td>
                             <td class="text-center">
-                                <form method="post" action="{% url 'remove_from_cart' item.id %}"
-                                      style="display:inline;">
+                                <form method="post" action="{% url 'remove_from_cart' item.id %}" class="d-inline">
                                     {% csrf_token %}
-                                    <button type="submit" class="btn btn-danger btn-sm" style="border-radius:6px;"><i
-                                            class="fa fa-trash"></i></button>
+                                    <button type="submit" class="btn btn-danger btn-sm" style="border-radius: 6px;">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
                                 </form>
-                                <form method="post" action="{% url 'save_for_later' item.id %}" style="display:inline;">
+                                <form method="post" action="{% url 'save_for_later' item.id %}" class="d-inline">
                                     {% csrf_token %}
-                                    <button type="submit" class="btn btn-outline-warning btn-sm"
-                                            style="border-radius:6px;">
-                                        <i class="fa fa-heart"></i> Save for Later
+                                    <button type="submit" class="btn btn-outline-warning btn-sm" style="border-radius: 6px;">
+                                        <i class="fa fa-heart"></i> Save
                                     </button>
                                 </form>
                             </td>
                         </tr>
                     {% endfor %}
-                    </tbody>
-                </table>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Grand Total and Checkout -->
+        <div class="d-flex justify-content-between align-items-center mt-4 flex-wrap p-3 rounded"
+             style="background: #0d1117; border: 1px solid #30363d;">
+            <div style="font-size: 1.2rem; font-weight: 600; color: #58a6ff;">
+                Grand Total: ₹{{ cart_total|floatformat:2 }}
             </div>
-            <!-- Cart total and checkout -->
-            <div class="d-flex justify-content-between align-items-center mt-4 flex-wrap">
-                <div>
-        <span style="font-size:1.2rem; font-weight:600; color:#58a6ff;">
-          Grand Total: ₹{{ cart_total|floatformat:2 }}
-        </span>
-                </div>
-                <a href="{% url 'checkout' %}" class="btn github-btn" style="width:200px; font-size:1.11rem;">
-                    <i class="fa fa-credit-card"></i> Checkout
-                </a>
-            </div>
-        {% else %}
-            <div class="text-center my-5" style="color:#8b949e; font-size:1.22rem;">
-                <i class="fa fa-shopping-cart fa-3x mb-3" style="color:#30363d;"></i><br>
-                Your cart is empty!
-            </div>
-        {% endif %}
-    </div>
+            <a href="{% url 'checkout' %}" class="btn btn-success px-4 py-2 mt-2 mt-md-0" style="font-size: 1.1rem;">
+                <i class="fa fa-credit-card"></i> Proceed to Checkout
+            </a>
+        </div>
+    {% else %}
+        <div class="text-center my-5" style="color: #8b949e; font-size: 1.3rem;">
+            <i class="fa fa-shopping-cart fa-3x mb-3" style="color: #30363d;"></i><br>
+            Your cart is empty. Start shopping!
+        </div>
+    {% endif %}
+</div>
 
 {% endblock %}
