@@ -6,4 +6,5 @@ social-auth-app-django==5.4.0
 razorpay==1.4.2
 reportlab==4.2.2
 gunicorn==22.0.0
-setuptools
+setuptools>=70
+wheel
